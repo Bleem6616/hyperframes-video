@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <!-- 子组合必须用 <template> 包裹；根节点 id 固定 #root -->
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          color: #f2f0ea;
+          font-family: system-ui, sans-serif;
+          background: #101418;
+        }
+        .glow {
+          position: absolute;
+          width: 900px;
+          height: 900px;
+          left: -180px;
+          top: -240px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(201, 169, 97, 0.2) 0%, rgba(201, 169, 97, 0.07) 42%, rgba(201, 169, 97, 0) 70%);
+        }
+        .glow2 {
+          position: absolute;
+          width: 820px;
+          height: 820px;
+          right: -220px;
+          bottom: -260px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(127, 168, 208, 0.16) 0%, rgba(127, 168, 208, 0.05) 44%, rgba(127, 168, 208, 0) 70%);
+        }
+        .wrap {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 0 96px;
+          box-sizing: border-box;
+        }
+        .kicker {
+          font-size: 22px;
+          letter-spacing: 8px;
+          color: #c9a961;
+          margin: 0 0 30px;
+          font-weight: 600;
+        }
+        h1 {
+          margin: 0;
+          font-size: 78px;
+          line-height: 1.22;
+          font-weight: 800;
+          letter-spacing: 4px;
+        }
+        .divider {
+          width: 76px;
+          height: 4px;
+          border-radius: 2px;
+          background: #c9a961;
+          margin: 32px auto 0;
+        }
+        p.lead {
+          margin: 26px 0 0;
+          font-size: 30px;
+          line-height: 1.6;
+          color: #9aa3ad;
+        }
+        .rule {
+          position: absolute;
+          left: 96px;
+          bottom: 128px;
+          width: 200px;
+          height: 3px;
+          background: rgba(201, 169, 97, 0.85);
+        }
+      </style>
+
+      <div id="root" data-composition-id="{{COMP_ID}}" data-width="{{WIDTH}}" data-height="{{HEIGHT}}">
+        <div class="glow" id="{{SID}}-glow"></div>
+        <div class="glow2" id="{{SID}}-glow2"></div>
+        <div class="wrap" id="{{SID}}-wrap">
+          <div class="kicker" id="{{SID}}-kicker">读 书 方 法 论</div>
+          <h1 id="{{SID}}-title">在此填写本镜主标题</h1>
+          <div class="divider" id="{{SID}}-divider"></div>
+          <p class="lead" id="{{SID}}-lead">副标题 / 引文</p>
+        </div>
+        <div class="rule" id="{{SID}}-rule"></div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+
+        // ── 贯穿全镜的动效（最重要）：整镜任意时刻画面都在动 ──────────────
+        // 光晕大幅缓移 + 呼吸缩放；幅度必须够大（±100px 量级），2% 的位移看不见也测不出
+        tl.fromTo("#{{SID}}-glow", { x: -110, y: -70, scale: 0.78, opacity: 0.5 },
+                                   { x: 140, y: 100, scale: 1.34, opacity: 1, duration: {{DURATION}}, ease: "none" }, 0.05);
+        tl.fromTo("#{{SID}}-glow2", { x: 90, y: 70, scale: 1.24, opacity: 0.35 },
+                                    { x: -130, y: -90, scale: 0.88, opacity: 0.95, duration: {{DURATION}}, ease: "none" }, 0.05);
+        // 整幅持续推近（Ken Burns），8~9% 才有感知
+        tl.fromTo("#{{SID}}-wrap", { scale: 1 }, { scale: 1.09, duration: {{DURATION}}, ease: "none" }, 0.05);
+
+        // ── 入场踩拍：时间点必须落在拍网格上 ────────────────────────────
+        // 第 n 拍 = phase + n * period（用 bpm_grid.py 实测）。
+        // 下面这组示例值对应 BPM 90.25 / 相位 0.305 → 请替换为你自己的实测值。
+        tl.fromTo("#{{SID}}-kicker", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.44, ease: "power3.out" }, 0.305);
+        tl.fromTo("#{{SID}}-title", { y: 46, opacity: 0 }, { y: 0, opacity: 1, duration: 0.60, ease: "power3.out" }, 0.970);
+        tl.fromTo("#{{SID}}-divider", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.44, ease: "power2.out" }, 1.635);
+        tl.fromTo("#{{SID}}-lead", { y: 26, opacity: 0 }, { y: 0, opacity: 1, duration: 0.50, ease: "power3.out" }, 2.299);
+
+        // ── 阅读等待期的可见运动：匀速进度线，扫完刚好镜结束 ──────────────
+        tl.fromTo("#{{SID}}-rule", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.44, ease: "power2.out" }, 2.964);
+        tl.fromTo("#{{SID}}-rule", { width: 200 }, { width: 380, duration: 4.2, ease: "none", immediateRender: false }, 3.629);
+
+        // ── 出场收暗：只动画内部节点，绝不 tween .clip 本体的可见性 ────────
+        const out = {{DURATION}} - 0.55;
+        tl.to("#{{SID}}-wrap", { opacity: 0, duration: 0.5, ease: "power2.in" }, out);
+        tl.to("#{{SID}}-rule", { opacity: 0, duration: 0.5, ease: "power2.in" }, out);
+
+        window.__timelines["{{COMP_ID}}"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

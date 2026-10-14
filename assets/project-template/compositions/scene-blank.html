@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+  </head>
+  <body>
+    <!-- 空白镜骨架：只负责「画面一直在动」的最小结构，内容自行替换 -->
+    <template>
+      <style>
+        #root {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          color: #f2f0ea;
+          font-family: system-ui, sans-serif;
+          background: #101418;
+        }
+        .glow {
+          position: absolute;
+          width: 880px;
+          height: 880px;
+          left: -160px;
+          top: -220px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(201, 169, 97, 0.18) 0%, rgba(201, 169, 97, 0.06) 44%, rgba(201, 169, 97, 0) 70%);
+        }
+        .wrap {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          padding: 0 96px;
+          box-sizing: border-box;
+        }
+        h2 {
+          margin: 0;
+          font-size: 62px;
+          line-height: 1.3;
+          font-weight: 800;
+        }
+        p {
+          margin: 24px 0 0;
+          font-size: 28px;
+          line-height: 1.6;
+          color: #9aa3ad;
+        }
+        .rule {
+          position: absolute;
+          left: 96px;
+          bottom: 128px;
+          width: 200px;
+          height: 3px;
+          background: rgba(201, 169, 97, 0.85);
+        }
+      </style>
+
+      <div id="root" data-composition-id="{{COMP_ID}}" data-width="{{WIDTH}}" data-height="{{HEIGHT}}">
+        <div class="glow" id="{{SID}}-glow"></div>
+        <div class="wrap" id="{{SID}}-wrap">
+          <h2 id="{{SID}}-head">第 {{INDEX}} 镜主标题</h2>
+          <p id="{{SID}}-sub">正文 / 图示说明</p>
+        </div>
+        <div class="rule" id="{{SID}}-rule"></div>
+      </div>
+
+      <script>
+        const tl = gsap.timeline({ paused: true });
+        // 贯穿动效（必须有，否则这镜中间会静止）
+        tl.fromTo("#{{SID}}-glow", { x: -100, y: -60, scale: 0.8, opacity: 0.5 },
+                                   { x: 130, y: 90, scale: 1.3, opacity: 1, duration: {{DURATION}}, ease: "none" }, 0.05);
+        tl.fromTo("#{{SID}}-wrap", { scale: 1 }, { scale: 1.08, duration: {{DURATION}}, ease: "none" }, 0.05);
+        // 入场踩拍（替换为你实测的拍点）
+        tl.fromTo("#{{SID}}-head", { y: 44, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, 0.305);
+        tl.fromTo("#{{SID}}-sub", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0.970);
+        // 阅读期进度线（把等待期填满）
+        tl.fromTo("#{{SID}}-rule", { scaleX: 0 }, { scaleX: 1, duration: {{DURATION}}, ease: "none" }, 0.4);
+        // 出场
+        tl.to("#{{SID}}-wrap", { opacity: 0, duration: 0.5, ease: "power2.in" }, {{DURATION}} - 0.55);
+        window.__timelines["{{COMP_ID}}"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

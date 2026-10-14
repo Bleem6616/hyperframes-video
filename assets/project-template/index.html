@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width={{WIDTH}}, height={{HEIGHT}}">
+    <title>{{TITLE}}</title>
+    <!-- GSAP 本地化：不要用 CDN，国内网络常连不上 jsdelivr，渲染会在正确性检查处失败 -->
+    <script src="/vendor/gsap.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #101418;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #101418;
+        /* 可选：内描边让画面四边不与抖音纯黑底融成一片（见 references/feed-safe-layout.md）；不需要可删掉本行 */
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.12);
+      }
+      #root [data-composition-src] {
+        position: absolute;
+        inset: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-width="{{WIDTH}}" data-height="{{HEIGHT}}" data-duration="{{DURATION}}">
+      <!-- 音轨：必须带 id，否则渲染无声；不得加 crossorigin -->
+{{BGM}}
+{{SCENES}}
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
