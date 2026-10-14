@@ -227,6 +227,16 @@ $browser = @(
 ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 if ($browser) { Ok "browser      ($browser)" } else { Warn "no Edge/Chrome found - set HF_BROWSER to a Chromium-based browser path" }
 
+# The doctor run below must see the SAME environment that hf-env.sh exports.
+# Without this it reports "Chrome Headless Shell is required" and points the
+# frame cache at the system drive - making a perfectly good install look
+# broken. Mirror the four variables here, for this child process only.
+if ($browser) { $env:HYPERFRAMES_BROWSER_PATH = $browser }
+$env:HYPERFRAMES_EXTRACT_CACHE_DIR = Join-Path $Temp "extract"
+$env:TMP = $Temp
+$env:TEMP = $Temp
+$env:TMPDIR = $Temp
+
 Info "running doctor..."
 Push-Location $Toolchain
 try { & $NodeExe $cli doctor } finally { Pop-Location }

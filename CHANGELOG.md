@@ -1,5 +1,23 @@
 # 更新日志
 
+## v1.0.1 — 2026-10-14
+
+修复「首次安装后自检误报」——明明装好了，看起来却像失败。
+
+- **`setup-env.ps1` 收尾自检补齐环境变量**：脚本末尾那次 `doctor` 没有带上
+  `hf-env.sh` 导出的那组变量，于是全新安装后自检会显示
+  `✗ Chrome — Chrome Headless Shell is required`，并把帧缓存指到系统盘
+  （`…\AppData\Local\Temp`）。现在自检前会设置
+  `HYPERFRAMES_BROWSER_PATH` / `HYPERFRAMES_EXTRACT_CACHE_DIR` /
+  `TMP` / `TEMP` / `TMPDIR`，仅作用于该子进程，不影响用户环境。
+
+**兼容性说明（实测）**
+
+- 工具链不锁版本，装到的是 npm 上的最新版（本次实测为 `hyperframes@0.8.157`，
+  技能内容按 `0.8.152` 编写）。已实测 `0.8.157` 下：旧工程 `lint` 0 errors /
+  0 warnings，模板工程可完整渲染出片（20.0 s / H.264 / AAC）。
+- 若将来某个 CLI 版本引入不兼容改动，见 `INSTALL.md` 的版本回退说明。
+
 ## v1.0.0 — 2026-10-14
 
 首个公开版本。
